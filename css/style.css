@@ -1,0 +1,311 @@
+/* ============================================================
+   卧游 · 句集 — 暗室灯下
+   一盏灯只照亮一幅画；一句在侧，句读成列，右起左行
+   ============================================================ */
+:root{
+  --room:#0c0b09;
+  --ivory:#e9dfc6;
+  --dim:rgba(233,223,198,.55);
+  --faint:rgba(233,223,198,.32);
+  --gold:rgba(214,178,102,.6);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:"LXGW WenKai Lite","LXGW WenKai","Kaiti SC",STKaiti,KaiTi,"Noto Serif SC",serif;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E"),
+    radial-gradient(130% 100% at 50% 26%, #171410 0%, var(--room) 62%);
+  background-blend-mode:soft-light,normal;
+  color:var(--ivory);
+  user-select:none;
+  -webkit-user-select:none;
+}
+button{font-family:inherit}
+
+/* ---------- 场 ---------- */
+.scene{
+  position:absolute; inset:0;
+  opacity:0; visibility:hidden;
+  transition:opacity .85s ease, visibility .85s;
+}
+.scene.on{opacity:1;visibility:visible}
+.wrap{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center; gap:54px;
+  padding:0 clamp(60px, 9vw, 130px);
+  cursor:pointer;
+  transition:transform .3s ease;
+}
+/* 合成层只给当前场景：168 个全屏 will-change 会堆出近 1GB 显存，
+   而详注让位的平移只作用于当前场景 */
+.scene.on .wrap{will-change:transform}
+
+/* ---------- 灯下的画 ---------- */
+.lamp{
+  position:relative;
+  transform:scale(.985);
+  transition:transform 1s cubic-bezier(.2,.7,.2,1);
+  flex:0 1 auto; max-width:60vw;
+}
+.scene.on .lamp{transform:scale(1)}
+.painting{
+  display:block;
+  width:min(56vw, 980px); aspect-ratio:16/9;
+  object-fit:cover;
+  background:#332e24;
+  box-shadow:0 36px 90px rgba(0,0,0,.85), 0 10px 26px rgba(0,0,0,.5);
+}
+.lamp::after{  /* 灯锥暗角 */
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:
+    radial-gradient(125% 125% at 50% -20%, transparent 42%, rgba(4,3,2,.6) 100%),
+    linear-gradient(180deg, rgba(255,236,190,.05), transparent 34%);
+}
+.glow{  /* 案头反光：贴在画下缘 8px 处，宽随画宽（画宽 min(56vw,980)） */
+  position:absolute; left:50%;
+  top:calc(50% + min(56vw, 980px)/16*9/2 + 8px);
+  transform:translateX(-50%);
+  width:min(44vw,720px); height:64px;
+  background:radial-gradient(50% 100% at 50% 0%, rgba(233,215,166,.085), transparent 72%);
+  pointer-events:none;
+}
+/* 待画之席（尚无配图的句子）：覆在画位上，画位由 .painting 撑住 */
+.empty{
+  position:absolute; inset:0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900' preserveAspectRatio='xMidYMax slice'%3E%3Cpath d='M0 900 L0 690 Q 240 470 520 660 Q 760 820 1020 600 Q 1240 420 1600 700 L1600 900 Z' fill='%232e6e93' opacity='0.16'/%3E%3Cpath d='M0 900 L0 780 Q 320 610 640 760 Q 980 900 1280 720 Q 1460 630 1600 780 L1600 900 Z' fill='%233f8f6f' opacity='0.13'/%3E%3C/svg%3E") bottom / cover,
+    linear-gradient(178deg, #211d15 0%, #17140e 100%);
+  border:1px solid rgba(233,223,198,.09);
+  box-shadow:0 36px 90px rgba(0,0,0,.85);
+}
+.empty::after{
+  content:"画 将 至 此";
+  position:absolute; left:50%; top:62%; transform:translate(-50%,-50%);
+  font-size:15px; letter-spacing:14px; text-indent:14px;
+  color:var(--faint);
+}
+
+/* ---------- 句（竖排，无句读） ---------- */
+.colophon{
+  display:flex; flex-direction:column; align-items:center; gap:34px;
+  max-height:76vh;
+  user-select:text; -webkit-user-select:text;   /* 诗文可选中复制（页面其余仍禁选） */
+  opacity:0; transform:translateX(12px);
+  transition:opacity 1s ease .2s, transform 1s ease .2s;
+}
+.scene.on .colophon{opacity:1;transform:none}
+.line{
+  writing-mode:vertical-lr;   /* 列序从左到右（现代阅读习惯） */
+  font-size:clamp(24px,3.1vh,35px);
+  letter-spacing:.32em; line-height:1.74;
+  color:var(--ivory);
+  text-shadow:0 0 24px rgba(233,215,166,.16);
+  max-height:58vh;
+}
+.line span{display:block}  /* 每短句一列，左起右行 */
+.src{
+  writing-mode:vertical-lr;
+  display:flex; flex-direction:row; gap:16px;
+  font-size:14px; letter-spacing:.34em; line-height:1.7;
+  color:var(--dim);
+  max-height:46vh;
+}
+.src span{display:block}
+
+/* ---------- 界面 ---------- */
+#btnIndex{
+  position:fixed; top:18px; right:24px; z-index:20;
+  font-size:14px; letter-spacing:5px; text-indent:5px;
+  color:var(--dim);
+  background:rgba(12,11,9,.5);
+  border:1px solid rgba(233,223,198,.22);
+  border-radius:999px;
+  padding:8px 18px;
+  cursor:pointer;
+  transition:color .25s, border-color .25s;
+  backdrop-filter:blur(4px);
+}
+#btnIndex:hover{ color:var(--ivory); border-color:rgba(233,223,198,.5); }
+
+#btnHome{
+  position:fixed; top:18px; left:24px; z-index:20;
+  font-size:14px; letter-spacing:5px; text-indent:5px;
+  color:var(--dim);
+  background:rgba(12,11,9,.5);
+  border:1px solid rgba(233,223,198,.22);
+  border-radius:999px;
+  padding:8px 18px;
+  text-decoration:none;
+  transition:color .25s, border-color .25s;
+  backdrop-filter:blur(4px);
+}
+#btnHome:hover{ color:var(--ivory); border-color:rgba(233,223,198,.5); }
+
+.nav{
+  position:fixed; top:50%; transform:translateY(-50%);
+  width:48px; height:88px;
+  border:none; background:none;
+  color:rgba(233,223,198,.34); font-size:44px; line-height:1;
+  cursor:pointer; transition:color .25s; z-index:20;
+}
+.nav:hover{color:var(--ivory)}
+#navL{left:8px}
+#navR{right:8px}
+
+#prog{
+  position:fixed; bottom:26px; left:50%; transform:translateX(-50%);
+  width:220px; height:2px;
+  background:rgba(233,223,198,.14);
+  border-radius:99px; z-index:20;
+}
+#progBar{
+  display:block; height:100%; width:0%;
+  background:linear-gradient(90deg, rgba(214,178,102,.5), #e8d5a4);
+  border-radius:99px;
+  transition:width .5s ease;
+}
+#counter{
+  position:fixed; bottom:38px; left:calc(50% + 132px);
+  font-size:11.5px; letter-spacing:3px;
+  color:var(--faint); z-index:20;
+  font-variant-numeric:tabular-nums;
+}
+
+/* ---------- 句目抽屉 ---------- */
+#drawer{
+  position:fixed; top:0; right:0; bottom:0; z-index:40;
+  width:min(360px, 88vw);
+  background:linear-gradient(180deg,#14110d,#0e0c09);
+  border-left:1px solid rgba(233,223,198,.12);
+  transform:translateX(102%);
+  transition:transform .45s cubic-bezier(.2,.7,.2,1);
+  display:flex; flex-direction:column;
+  box-shadow:-30px 0 80px rgba(0,0,0,.6);
+}
+#drawer.open{transform:none}
+.drawer-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 22px 14px;
+  border-bottom:1px solid rgba(233,223,198,.1);
+}
+.drawer-head span{font-size:16px; letter-spacing:8px; color:var(--ivory)}
+#drawerClose{
+  background:none; border:none; color:var(--dim);
+  font-size:26px; line-height:1; cursor:pointer; padding:2px 8px;
+  transition:color .2s;
+}
+#drawerClose:hover{color:var(--ivory)}
+#drawerList{
+  flex:1; overflow-y:auto; padding:10px 0 26px;
+  scrollbar-width:thin; scrollbar-color:rgba(233,223,198,.25) transparent;
+}
+.dgroup{
+  font-size:12.5px; letter-spacing:6px;
+  color:var(--faint);
+  padding:18px 22px 8px;
+}
+.ditem{
+  display:flex; align-items:baseline; gap:10px;
+  width:100%; text-align:left;
+  background:none; border:none;
+  padding:9px 22px;
+  cursor:pointer;
+  color:var(--dim);
+  transition:color .2s, background .2s;
+}
+.ditem:hover{color:var(--ivory); background:rgba(233,223,198,.05)}
+.ditem.cur{color:var(--ivory); background:rgba(233,223,198,.07)}
+.ditem .no{
+  font-size:11px; color:var(--faint);
+  font-variant-numeric:tabular-nums; min-width:22px;
+}
+.ditem .t{
+  font-size:14.5px; letter-spacing:1.5px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.ditem .pic{
+  font-size:10px; color:var(--gold); letter-spacing:1px;
+  border:1px solid rgba(214,178,102,.4);
+  border-radius:3px; padding:1px 4px;
+  margin-left:auto; flex:none;
+}
+#drawerMask{
+  position:fixed; inset:0; z-index:39;
+  background:rgba(0,0,0,.45);
+  opacity:0; visibility:hidden;
+  transition:opacity .4s, visibility .4s;
+}
+#drawerMask.on{opacity:1;visibility:visible}
+
+/* ---------- 详注 · 就地直陈（无面板，墙上文字） ---------- */
+#note{
+  position:fixed; top:50%; right:clamp(56px, 8vw, 128px);
+  width:clamp(280px, 21vw, 360px);
+  transform:translateY(-50%);
+  z-index:5; pointer-events:none;
+}
+body.open #note{pointer-events:auto}
+#note .note-in{
+  opacity:0; transform:translateY(14px);
+  transition:opacity .3s ease, transform .3s ease;
+}
+body.open #note .note-in{opacity:1; transform:none}
+.nsrc{
+  font-size:12.5px; letter-spacing:.4em;
+  color:rgba(233,223,198,.5);
+}
+.ntrans{
+  margin-top:24px;
+  font-size:16px; line-height:1.95; letter-spacing:.03em;
+  color:rgba(233,223,198,.85);
+  text-align:justify;
+}
+.napprec{
+  margin-top:20px;
+  font-size:13.5px; line-height:1.9; letter-spacing:.03em;
+  color:rgba(233,223,198,.65);
+  text-align:justify;
+}
+.rule{  /* 唯一的一条分区细线 */
+  margin-top:26px; height:1px;
+  background:rgba(233,223,198,.12);
+}
+.saying{
+  margin-top:22px; min-height:34px;
+  font-size:16px; line-height:1.9; letter-spacing:.03em;
+  color:var(--ivory); caret-color:var(--ivory);
+  padding-bottom:7px;
+  border-bottom:1px solid rgba(233,223,198,.16);
+  outline:none;
+  user-select:text; -webkit-user-select:text;
+}
+.saying:focus{border-bottom-color:rgba(233,223,198,.34)}
+.saying:empty::before{content:attr(data-ph); color:rgba(233,223,198,.38)}
+.ntip{
+  margin-top:10px;
+  font-size:11px; letter-spacing:.26em;
+  color:rgba(233,223,198,.35);
+}
+#sayExport{  /* 按语导出：ntip 行内小字入口，与落地页浮层同款轻量 */
+  background:none; border:none; padding:0 1px 2px;
+  margin-left:14px;
+  font-size:11px; letter-spacing:.26em;
+  color:rgba(233,223,198,.35); cursor:pointer;
+  border-bottom:1px solid rgba(233,223,198,.16);
+  transition:color .25s;
+}
+#sayExport:hover{color:rgba(233,223,198,.75)}
+
+/* ---------- 窄窗口（≤780px）：始终桌面横排版式；仅详注沉底成匣防压画 ---------- */
+@media (max-width:780px){
+  #note{ top:auto; right:18px; left:18px; bottom:64px; transform:none;
+         width:auto; max-height:46vh; overflow:auto;
+         background:linear-gradient(180deg,#14110d,#0e0c09);
+         border-top:1px solid rgba(233,223,198,.12);
+         padding:18px 20px 14px }
+  .ntrans{font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){
+  .scene,.lamp,.colophon{transition:none}
+}

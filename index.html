@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>青清诗集</title>
+<meta name="description" content="青清诗集——私人名句集，一挂竖帘。">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="%23a63a2b"/><text x="32" y="46" font-size="40" text-anchor="middle" fill="%23f6eed9" font-family="KaiTi,serif">青</text></svg>'>
+<link rel="stylesheet" href="fonts/lxgwwenkailite-regular.css">
+<style>
+/* ============================================================
+   青清诗集 · 首页 —— 封面「题签」+ 句墙「横卷展开」
+   封面如线装书之题签；句墙九卷各成一条横卷带，
+   按住拖拽展卷，滚轮始终留给纵向翻页；卡如展签：诗居中 + 画上小注。
+   手段只有：字号、字距、行高、透明度、间距、1px 细线、底色微差、书写方向
+   详情浮层右栏可翻面看画（有图句才有入口，
+   rotateY .45s 为军规唯一例外）
+   ============================================================ */
+:root{
+  --paper-0:#efe9da;   /* 封面绢色 */
+  --paper-1:#eae3d0;   /* 句墙绢色（微深） */
+  --paper-2:#f2ecdd;   /* 题签/卡片（微浅） */
+  --paper-3:#f6f1e4;   /* 详情浮层（最浅） */
+  --ink:#2f2b23;
+  --ink-2:rgba(47,43,35,.6);
+  --ink-3:rgba(47,43,35,.4);
+  --hair:rgba(47,43,35,.16);
+  --hair-2:rgba(47,43,35,.09);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html.lock{overflow:hidden}
+body{
+  font-family:"LXGW WenKai Lite","LXGW WenKai","Kaiti SC",STKaiti,KaiTi,"Noto Serif SC",serif;
+  color:var(--ink);
+  background:var(--paper-1);
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit}
+
+/* ---------- 模式切换（右上，纯文字） ---------- */
+.mode{
+  position:fixed; top:22px; right:28px; z-index:60;
+  font-size:13px; letter-spacing:.42em; text-indent:.42em;
+  color:var(--ink-2); text-decoration:none;
+  padding:4px 2px 6px;
+  border-bottom:1px solid var(--hair);
+  transition:color .25s ease, border-color .25s ease;
+}
+.mode:hover{color:var(--ink);border-bottom-color:var(--ink-3)}
+
+/* ---------- 一、封面 · 线装书题签式 ---------- */
+.cover{
+  min-height:92vh;
+  background:var(--paper-1);
+  position:relative;
+  overflow:hidden;
+}
+.slip{                 /* 题签：贴于左上 */
+  position:absolute; top:11vh; left:9vw;
+  background:var(--paper-2);
+  border:1px solid var(--hair);
+  padding:36px 20px 30px;
+  writing-mode:vertical-lr;      /* 列序从左到右 */
+}
+.slip-title{
+  font-size:clamp(40px,4.8vw,64px);
+  letter-spacing:.22em; line-height:1.14;
+  font-weight:400;
+}
+.slip-sub{
+  font-size:13px; letter-spacing:.5em;
+  color:var(--ink-3);
+  margin-left:22px;              /* 竖排下的"下"一列 */
+  padding-top:6px;
+}
+.today{                 /* 今日一句：右侧主景 */
+  position:absolute; right:11vw; top:50%;
+  transform:translateY(-50%);
+  writing-mode:vertical-lr;
+  display:flex;
+  max-height:64vh;
+}
+.today > *{flex:none}   /* 子项禁压缩：压缩会把短句末字挤出孤列、出处列窜位 */
+.t-label{
+  font-size:12px; letter-spacing:.5em; line-height:1.9;
+  color:var(--ink-3);
+  padding-top:12px;
+}
+.t-line{
+  margin-block-start:16px;
+  font-size:clamp(23px,3.4vh,33px);
+  letter-spacing:.3em; line-height:2.05;
+  max-height:56vh;
+}
+.t-line span{display:block}
+.t-src{
+  margin-block-start:24px;
+  font-size:12px; letter-spacing:.34em; line-height:1.9;
+  color:var(--ink-3);
+  max-height:44vh;
+}
+.cover-hint{
+  position:absolute; bottom:5vh; left:50%; transform:translateX(-50%);
+  font-size:12px; letter-spacing:.6em; text-indent:.6em;
+  color:var(--ink-3); white-space:nowrap;
+}
+
+/* ---------- 二、句墙 · 横卷展开 ---------- */
+.wall{padding-bottom:16vh}
+.tocs{                 /* 卷目：九卷直达锚点，轻如卷名本身 */
+  display:flex; flex-wrap:wrap; gap:12px 2.4em;
+  margin:0 6vw;
+  padding:7vh 2px 1vh;
+}
+.tocs a{
+  font-size:12px; letter-spacing:.42em;
+  color:var(--ink-3); text-decoration:none;
+  transition:color .25s ease;
+}
+.tocs a:hover{color:var(--ink)}
+.tocs a:focus-visible{outline:1px solid var(--ink-3);outline-offset:3px}
+.band-sec{scroll-margin-top:6vh; padding-top:6vh}
+.band-sec:nth-of-type(even){background:var(--paper-0)}   /* 底色微差：卷与卷的呼吸 */
+.ghead{
+  display:flex; align-items:center; gap:26px;
+  margin:0 6vw 4.5vh;
+}
+.ghead span{
+  font-size:15px; letter-spacing:.5em;
+  color:var(--ink-2); white-space:nowrap;
+}
+.ghead::after{
+  content:""; flex:1; height:1px; background:var(--hair-2);
+}
+.band{
+  overflow-x:auto; overflow-y:hidden;
+  padding:4px 6vw 30px;
+  outline:none;
+  cursor:grab;                            /* 按住拖动＝展卷 */
+  user-select:none; -webkit-user-select:none;
+  scrollbar-width:none;                   /* 卷带不露滚动条：拖拽/触控板/键盘皆可卷 */
+  -webkit-mask-image:linear-gradient(90deg,rgba(0,0,0,0) 0,#000 44px,#000 calc(100% - 44px),rgba(0,0,0,0) 100%);
+          mask-image:linear-gradient(90deg,rgba(0,0,0,0) 0,#000 44px,#000 calc(100% - 44px),rgba(0,0,0,0) 100%);
+}
+.band::-webkit-scrollbar{display:none}
+.band:focus-visible{outline:1px solid var(--ink-3); outline-offset:-1px}
+.band.drag{cursor:grabbing}
+/* 两端渐隐随卷动位置收放（纯透明度） */
+.band.nol{
+  -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 44px),rgba(0,0,0,0) 100%);
+          mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 44px),rgba(0,0,0,0) 100%);
+}
+.band.nor{
+  -webkit-mask-image:linear-gradient(90deg,rgba(0,0,0,0) 0,#000 44px,#000 100%);
+          mask-image:linear-gradient(90deg,rgba(0,0,0,0) 0,#000 44px,#000 100%);
+}
+.band.nol.nor{-webkit-mask-image:none;mask-image:none}
+.cards{
+  display:flex; align-items:flex-start;
+  column-gap:clamp(18px,2vw,34px);
+  width:max-content;
+}
+.card{
+  flex:none; min-width:332px;             /* 图位 288 + 左右衬 22 */
+  display:flex; flex-direction:column; align-items:center; gap:16px;
+  padding:22px;
+  background:var(--paper-2);
+  border:1px solid var(--hair-2);
+  cursor:pointer;
+  transition:transform .25s ease, border-color .25s ease;
+}
+.card:hover{transform:translateY(-2px); border-color:rgba(47,43,35,.28)}
+.card:focus-visible{outline:1px solid var(--ink-3);outline-offset:3px}
+.c-v{                                    /* 诗句区定高：整带等高的基准 */
+  writing-mode:vertical-lr;              /* 列序从左到右 */
+  height:300px; flex:none;
+  display:flex; justify-content:center; align-items:center;
+                                        /* 诗块整块垂直并水平居中 */
+}
+.c-line{
+  font-size:18px; letter-spacing:.26em; line-height:1.95;
+  color:var(--ink);
+}
+.c-line span{display:block}              /* 每短句一列，左起右行，列中无标点 */
+.c-src{                                  /* 展签：画位上方一行横排小字 */
+  font-size:11px; letter-spacing:.18em;
+  color:var(--ink-3);
+  text-align:center;
+  height:20px; line-height:20px;
+  max-width:100%;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.c-slot{width:288px; height:162px; flex:none}   /* 16:9 图位；无图即虚位 */
+.c-img{display:block; width:100%; height:100%; object-fit:cover}
+
+/* ---------- 三、详情浮层 ---------- */
+#mask{
+  position:fixed; inset:0; z-index:50;
+  display:flex; align-items:center; justify-content:center;
+  padding:4vh 4vw;
+  background:rgba(32,28,21,.45);   /* 遮深一档：句墙退成背景，不再抢浮层的戏 */
+  opacity:0; visibility:hidden;
+  transition:opacity .25s ease, visibility .25s;
+}
+#mask.on{opacity:1;visibility:visible}
+.panel{
+  width:min(940px,94vw); max-height:88vh; overflow:auto;
+  display:flex; gap:clamp(30px,4vw,58px);
+  padding:clamp(30px,4vw,54px);
+  background:var(--paper-3);
+  border:1px solid var(--hair);
+  transform:translateY(10px);
+  transition:transform .25s ease;
+  scrollbar-width:thin; scrollbar-color:rgba(47,43,35,.25) transparent;   /* 长文滚动：细墨线，不破纸面 */
+}
+.panel::-webkit-scrollbar{width:8px}
+.panel::-webkit-scrollbar-thumb{background:rgba(47,43,35,.25); border-radius:4px}
+.panel::-webkit-scrollbar-track{background:transparent}
+#mask.on .panel{transform:none}
+.p-left{
+  flex:none;
+  padding-block-end:6px;
+}
+.p-line{
+  writing-mode:vertical-lr;
+  font-size:clamp(26px,4.2vh,38px);
+  letter-spacing:.24em; line-height:2.05;
+  max-height:60vh;
+  color:var(--ink);
+}
+.p-line span{display:block}
+
+/* —— 方案 F 增量：右栏可翻面 ——
+   p-zone 接替原 .p-right 的弹性占位（flex:1 / min-width:0），
+   内部 p-flip 负责旋转；正面 p-right 样式与现行逐字相同，
+   背面绝对定位盖满同一矩形。未翻时 p-flip 无 transform，
+   翻回后零残留。透视只作用于这一栏。 */
+.p-zone{
+  flex:1; min-width:0;
+  position:relative;
+  display:flex; flex-direction:column;
+  perspective:1600px;
+}
+.p-flip{
+  position:relative; flex:1 1 auto;
+  transform-style:preserve-3d;
+  transition:transform .45s ease;   /* 军规唯一例外：翻面 */
+}
+.p-flip.on{transform:rotateY(180deg)}
+.p-right{                 /* 正面：与现行完全一致 */
+  height:100%;
+  display:flex; flex-direction:column;
+  border-inline-start:1px solid var(--hair-2);
+  padding-inline-start:clamp(24px,3vw,44px);
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+}
+.p-back{                  /* 背面：该句 16:9 配图 */
+  display:none;
+  position:absolute; inset:0;
+  transform:rotateY(180deg);
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  overflow:hidden;
+  background:var(--paper-2);
+  border:1px solid var(--hair-2);
+  cursor:pointer;
+}
+.p-back.on{display:block}
+.p-back img{
+  display:block; width:100%; height:100%;
+  object-fit:cover;
+}
+.p-flipbtn{               /* 翻面入口：小号宽字距，1px 下线，墨色 */
+  background:none; border:none; padding:0 1px 3px;
+  margin-inline-start:30px;
+  font-size:11px; letter-spacing:.3em;
+  color:var(--ink-3);
+  border-bottom:1px solid var(--hair);
+  cursor:pointer;
+  transition:color .25s ease, border-color .25s ease;
+}
+.p-flipbtn:hover{color:var(--ink);border-bottom-color:var(--ink-3)}
+.p-flipbtn:focus-visible{outline:1px solid var(--ink-3);outline-offset:3px}
+
+.p-src{
+  font-size:13px; letter-spacing:.3em;
+  color:var(--ink-2);
+  padding-bottom:20px; border-bottom:1px solid var(--hair-2);
+}
+.p-sec{margin-top:28px}
+.p-sec h3{
+  font-size:12px; font-weight:400;
+  letter-spacing:.52em;
+  color:var(--ink-3);
+  margin-bottom:12px;
+}
+.p-sec p{
+  font-size:15.5px; line-height:2.05; letter-spacing:.02em;
+  color:var(--ink);
+  max-width:620px;   /* 行长约 40 字，中文舒适行长 */
+}
+.p-edit{
+  min-height:46px;
+  font-size:15.5px; line-height:2.05; letter-spacing:.02em;
+  color:var(--ink); caret-color:var(--ink);
+  outline:none;
+  border-bottom:1px solid var(--hair);
+  padding-bottom:6px;
+  word-break:break-word;
+  max-width:620px;
+}
+.p-edit:focus{border-bottom-color:var(--ink-3)}
+.p-edit:empty::before{content:attr(data-ph);color:var(--ink-3)}
+.p-tip{
+  margin-top:auto; padding-top:34px;
+  font-size:11px; letter-spacing:.3em;
+  color:var(--ink-3);
+  text-align:right;
+}
+.p-link{
+  color:inherit; text-decoration:none;
+  border-bottom:1px solid var(--hair);
+}
+.p-link:hover{border-bottom-color:var(--ink-3)}
+</style>
+</head>
+<body>
+
+<a class="mode" href="room.html">沉浸观赏</a>
+
+<!-- 一、封面 -->
+<header class="cover">
+  <div class="slip">
+    <h1 class="slip-title">青清诗集</h1>
+    <p class="slip-sub" id="cvSub"></p>
+  </div>
+  <div class="today">
+    <p class="t-label">今日一句</p>
+    <p class="t-line" id="cvLine"></p>
+    <p class="t-src" id="cvSrc"></p>
+  </div>
+  <p class="cover-hint">向下卷帘</p>
+</header>
+
+<!-- 二、句墙 -->
+<main class="wall" id="wall"></main>
+
+<!-- 三、详情浮层（右栏可翻面：正面=现行原样，背面=该句配图） -->
+<div id="mask">
+  <div class="panel" role="dialog" aria-modal="true" aria-label="句之详注">
+    <div class="p-left">
+      <p class="p-line" id="dLine"></p>
+    </div>
+    <div class="p-zone">
+      <div class="p-flip" id="dFlipBox">
+        <div class="p-right">
+          <p class="p-src" id="dSrc"></p>
+          <section class="p-sec" id="secTrans">
+            <h3>译文</h3>
+            <p id="dTrans"></p>
+          </section>
+          <section class="p-sec" id="secApprec">
+            <h3>赏析</h3>
+            <p id="dApprec"></p>
+          </section>
+          <section class="p-sec">
+            <h3>按语</h3>
+            <div class="p-edit" id="dSaying" contenteditable="true" data-ph="留一句话给它……"></div>
+          </section>
+          <p class="p-tip" id="dTip"><span id="dTipText">按 esc 或点空处合上</span><button type="button" class="p-flipbtn" id="dFlipBtn">翻面</button><button type="button" class="p-flipbtn" id="dExportBtn">导出按语</button></p>
+        </div>
+        <div class="p-back" id="dBack">
+          <img id="dBackImg" alt="">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/imgs.js"></script>
+<script src="js/common.js"></script>
+<script>
+(function(){
+  "use strict";
+  var LINES = window.LINES || [];
+  var GROUPS = window.COMMON.GROUPS;                 /* 九卷序/断列/转义/按语键：两页共用 common.js */
+  var esc = window.COMMON.esc, vcolsHTML = window.COMMON.vcolsHTML,
+      vtext = window.COMMON.vtext, srcH = window.COMMON.srcH, srcV = window.COMMON.srcV;
+  var byId = {};
+  LINES.forEach(function(o){ byId[o.id] = o; });
+
+  /* ---------- 封面 ---------- */
+  var now = new Date();
+  var doy = Math.floor((now - new Date(now.getFullYear(),0,0)) / 864e5);
+  var today = LINES[doy % LINES.length];
+  document.getElementById("cvSub").textContent = vtext(window.SITE.subtitle || "");
+  if(today){
+    document.getElementById("cvLine").innerHTML = vcolsHTML(today.line);
+    document.getElementById("cvSrc").textContent = srcV(today);
+  }
+
+  /* ---------- 句墙 ---------- */
+  var buckets = {};
+  GROUPS.forEach(function(g){ buckets[g] = []; });
+  LINES.forEach(function(o){
+    var g = (o.tags && o.tags[0] && buckets[o.tags[0]]) ? o.tags[0] : "人生";
+    buckets[g].push(o);
+  });
+  var html = '<nav class="tocs" aria-label="卷目">'
+           + GROUPS.map(function(g){ return buckets[g].length ? '<a href="#g-'+g+'">'+g+'</a>' : ''; }).join("")
+           + '</nav>';
+  GROUPS.forEach(function(g){
+    if(!buckets[g].length) return;
+    html += '<section class="band-sec" id="g-'+g+'">'
+          +   '<header class="ghead"><span>卷 · '+g+'（'+buckets[g].length+'）</span></header>'
+          +   '<div class="band" tabindex="0" role="region" aria-label="卷 · '+g+'"><div class="cards">';
+    buckets[g].forEach(function(o){
+      var hasImg = !window.IMGS || !!window.IMGS[o.id];   /* 清单无图不发请求；无清单照旧试探，回退链兜底 */
+      html += '<article class="card" tabindex="0" data-id="'+o.id+'">'
+            +   '<div class="c-v"><p class="c-line">'+vcolsHTML(o.line)+'</p></div>'
+            +   '<p class="c-src">'+esc(srcH(o))+'</p>'
+            +   '<div class="c-slot">'+(hasImg ? '<img class="c-img" data-id="'+o.id+'" src="assets/poems/'+o.id+'_t.jpg" alt="" loading="lazy">' : '')+'</div>'
+            + '</article>';
+    });
+    html += '</div></div></section>';
+  });
+  document.getElementById("wall").innerHTML = html;
+  /* 缩略图缺档时回退原图，原图也无则收走图（虚位仍在，整带等高）；
+     监听器须存活两次 error（缩略图→原图），不能摘除 */
+  Array.prototype.forEach.call(document.querySelectorAll(".c-img"), function(img){
+    img.addEventListener("error", function onErr(){
+      if(!img.dataset.triedFull){
+        img.dataset.triedFull = "1";
+        img.src = "assets/poems/" + img.getAttribute("data-id") + ".jpg";
+      } else {
+        img.remove();
+      }
+    });
+  });
+
+  /* ---------- 横卷卷动：按住拖拽＝展卷，滚轮始终留给纵向 ----------
+     滚轮不做任何劫持；触控板横滑（deltaX）由 overflow-x 原生接管；
+     鼠标按住拖动：位移超 6px 视为拖卷，吞掉拖后误触的卡片 click。 */
+  var bands = Array.prototype.slice.call(document.querySelectorAll(".band"));
+  function fade(b){
+    var max = b.scrollWidth - b.clientWidth;
+    b.classList.toggle("nol", max <= 0 || b.scrollLeft <= 1);
+    b.classList.toggle("nor", max <= 0 || b.scrollLeft >= max - 1);
+  }
+  bands.forEach(function(b){
+    var down = false, capt = false, sx = 0, sl = 0, moved = false;
+    b.addEventListener("dragstart", function(e){ e.preventDefault(); });   /* 图上按住＝展卷；原生拖图会掐断指针事件、卡死拖卷态 */
+    b.addEventListener("pointerdown", function(e){
+      if(e.pointerType !== "mouse") return;   /* 触屏交给原生滚动 */
+      down = true; moved = false; capt = false;
+      sx = e.clientX; sl = b.scrollLeft;
+      b.classList.add("drag");
+    });
+    window.addEventListener("pointermove", function(e){
+      if(!down) return;
+      if(!(e.buttons & 1)){   /* 窗外松手等：pointerup 丢失时按按键态复位，防卷带粘手 */
+        down = false;
+        b.classList.remove("drag");
+        return;
+      }
+      var d = e.clientX - sx;
+      if(Math.abs(d) > 6){
+        moved = true;
+        /* 只在真拖起才捕获：按下就捕获会把点击转投给卷带，卡片再也点不开（09-10 回归教训） */
+        if(!capt){ capt = true; try{ b.setPointerCapture(e.pointerId); }catch(err){} }
+      }
+      b.scrollLeft = sl - d;
+    });
+    window.addEventListener("pointerup", function(){
+      if(!down) return;
+      down = false;
+      b.classList.remove("drag");
+    });
+    window.addEventListener("pointercancel", function(){
+      if(!down) return;
+      down = false;                            /* 指针被系统抢走（原生手势等）：复位，防拖卷态卡死 */
+      b.classList.remove("drag");
+    });
+    b.addEventListener("click", function(e){
+      if(moved){ e.stopPropagation(); e.preventDefault(); moved = false; }
+    }, true);
+    b.addEventListener("scroll", function(){ fade(b); }, {passive:true});
+    fade(b);
+  });
+  window.addEventListener("resize", function(){
+    bands.forEach(fade);
+  });
+
+  /* ---------- 详情浮层 ---------- */
+  var mask = document.getElementById("mask");
+  var dLine = document.getElementById("dLine");
+  var dSrc = document.getElementById("dSrc");
+  var secTrans = document.getElementById("secTrans");
+  var dTrans = document.getElementById("dTrans");
+  var secApprec = document.getElementById("secApprec");
+  var dApprec = document.getElementById("dApprec");
+  var dSaying = document.getElementById("dSaying");
+  var dTip = document.getElementById("dTip");
+  var dTipText = document.getElementById("dTipText");
+  var dFlipBox = document.getElementById("dFlipBox");   /* 旋转体 */
+  var dFlipBtn = document.getElementById("dFlipBtn");   /* 翻面入口（探测成功才入 DOM） */
+  var dBack = document.getElementById("dBack");         /* 背面画匣 */
+  var dBackImg = document.getElementById("dBackImg");
+  var currentId = null;
+  var flipSeq = 0;                                      /* 快速连开防串图令牌 */
+
+  var sayKey = window.COMMON.sayKey;
+  function saveSaying(){
+    if(!currentId) return;
+    var t = dSaying.innerText.replace(/\u00A0/g," ").trim();
+    try{
+      if(t){ localStorage.setItem(sayKey(currentId), t); }
+      else { localStorage.removeItem(sayKey(currentId)); dSaying.innerHTML=""; }
+    }catch(e){}   /* 隐私模式等禁存场景：静默放弃，与暗室页防护对齐 */
+  }
+
+  /* —— 翻面：入口只在图确实存在时出现；开新句必回正面 —— */
+  function resetFlip(){
+    flipSeq++;
+    dFlipBox.classList.remove("on");
+    if(dFlipBtn.parentNode) dFlipBtn.parentNode.removeChild(dFlipBtn);
+    dBack.classList.remove("on");
+    dBackImg.removeAttribute("src");
+  }
+  function armFlip(id, seq){
+    if(window.IMGS && !window.IMGS[id]) return;   /* 清单无图：免探测，与 404 同貌 */
+    var url = "assets/poems/" + id + ".jpg";
+    var probe = new Image();          /* 预探测，非 lazy：成功后赋 src 即命中缓存 */
+    probe.onload = function(){
+      if(seq !== flipSeq || currentId !== id) return;   /* 已换句/已合上：弃 */
+      dBackImg.src = url;
+      dBack.classList.add("on");
+      dTip.appendChild(dFlipBtn);     /* 入口就位；404 则永不出现（保持移除） */
+    };
+    probe.onerror = function(){
+      /* 404：无翻转痕迹，与无图句完全一样 */
+    };
+    probe.src = url;
+  }
+
+  /* file:// 双击直开时 replaceState 会抛错：静默放弃，页面照常 */
+  function pushQ(u){ try{ history.replaceState(null,"",u); }catch(e){} }
+  function openDetail(id){
+    var o = byId[id];
+    if(!o) return;
+    currentId = id;
+    dLine.innerHTML = vcolsHTML(o.line);
+    dSrc.textContent = srcH(o);
+    var tr = (o.trans||"").trim();
+    secTrans.style.display = tr ? "" : "none";
+    dTrans.textContent = tr;
+    var ap = (o.apprec||"").trim();
+    secApprec.style.display = ap ? "" : "none";
+    dApprec.textContent = ap;
+    dSaying.innerHTML = "";
+    var saved = localStorage.getItem(sayKey(id));
+    if(saved) dSaying.innerText = saved;
+    dTipText.textContent = "按 esc 或点空处合上";
+    resetFlip();
+    armFlip(id, flipSeq);
+    mask.classList.add("on");
+    document.documentElement.classList.add("lock");
+    pushQ("?detail="+encodeURIComponent(id));
+  }
+  function closeDetail(){
+    if(!mask.classList.contains("on")) return;
+    saveSaying();
+    resetFlip();
+    mask.classList.remove("on");
+    document.documentElement.classList.remove("lock");
+    currentId = null;
+    pushQ(location.pathname);
+  }
+
+  document.getElementById("wall").addEventListener("click",function(e){
+    var c = e.target.closest(".card");
+    if(c) openDetail(c.getAttribute("data-id"));
+  });
+  document.getElementById("wall").addEventListener("keydown",function(e){
+    if(e.key!=="Enter" && e.key!==" ") return;
+    var c = e.target.closest(".card");
+    if(c){ e.preventDefault(); openDetail(c.getAttribute("data-id")); }
+  });
+  mask.addEventListener("click",function(e){
+    if(e.target === mask) closeDetail();
+  });
+  dFlipBtn.addEventListener("click",function(){
+    dFlipBox.classList.add("on");     /* 翻面：正面翻入画 */
+  });
+  dBack.addEventListener("click",function(){
+    dFlipBox.classList.remove("on");  /* 点画面任意处翻回原文 */
+  });
+  dSaying.addEventListener("blur",saveSaying);
+  window.addEventListener("pagehide",saveSaying);   /* 开着浮层直接关页：兜底存一笔 */
+  document.getElementById("dExportBtn").addEventListener("click",function(){
+    saveSaying();                                   /* 先落当前这笔再导出 */
+    window.COMMON.exportSayings();
+  });
+  window.addEventListener("keydown",function(e){
+    if(e.key==="Escape") closeDetail();
+  });
+
+  /* ---------- 直达参数 ---------- */
+  var q = new URLSearchParams(location.search);
+  if(q.get("detail")) openDetail(q.get("detail"));
+})();
+</script>
+</body>
+</html>

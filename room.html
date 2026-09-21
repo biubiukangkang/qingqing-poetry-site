@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN" style="background:#0c0b09">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>青清诗集</title>
+<meta name="description" content="青清诗集——暗室一灯，一句一画。">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="%23a63a2b"/><text x="32" y="46" font-size="40" text-anchor="middle" fill="%23f6eed9" font-family="KaiTi,serif">青</text></svg>'>
+<link rel="stylesheet" href="fonts/lxgwwenkailite-regular.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="stage"></div>
+
+<button id="navL" class="nav" title="上一句" aria-label="上一句">‹</button>
+<button id="navR" class="nav" title="下一句" aria-label="下一句">›</button>
+
+<a id="btnHome" href="index.html" title="回首页">回首页</a>
+<button id="btnIndex" title="句目">句　目</button>
+
+<div id="prog"><i id="progBar"></i></div>
+<div id="counter"></div>
+
+<!-- 句目抽屉 -->
+<aside id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <span>句　目</span>
+    <button id="drawerClose">×</button>
+  </div>
+  <nav id="drawerList"></nav>
+</aside>
+<div id="drawerMask"></div>
+
+<!-- 详注 · 就地直陈：无面板，墙上文字 -->
+<div id="note" role="region" aria-label="详注" aria-hidden="true">
+  <div class="note-in">
+    <p class="nsrc" id="nsrc"></p>
+    <p class="ntrans" id="ntrans"></p>
+    <p class="napprec" id="napprec"></p>
+    <div class="rule" aria-hidden="true"></div>
+    <div class="saying" id="saying" contenteditable="true" data-ph="留一句话给它……"></div>
+    <p class="ntip" id="ntip"><span id="ntipText">随写随存 · 只记在这台设备上</span><button type="button" id="sayExport">导出按语</button></p>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/imgs.js"></script>
+<script src="js/common.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
